@@ -10,7 +10,10 @@ class Settings(BaseSettings):
 
     # App
     app_name: str = "Panshul Education OS"
-    env: str = "development"
+    # Fail safe when a deployment forgets to set ENV: startup must not try to
+    # create tables against the local-development database URL. Local .env
+    # files and .env.example explicitly set ENV=development.
+    env: str = "production"
     debug: bool = False
     api_v1_prefix: str = "/api/v1"
     # Comma-separated browser origins allowed to call the API directly.
