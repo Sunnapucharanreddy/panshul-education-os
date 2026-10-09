@@ -1,0 +1,104 @@
+# Production-oriented stack. Keep local development on docker-compose.yml.
+# Use: docker compose --env-file .env.production -f docker-compose.production.yml up -d --build
+services:
+  web:
+    build:
+      context: ../panshul-web
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_DEV_OTP_HINT: "0"
+    environment:
+      NODE_ENV: production
+      BACKEND_URL: ${BACKEND_URL:-http://api:8000}
+    ports:
+      - "${WEB_BIND_ADDRESS:-127.0.0.1}:${WEB_PORT:-3000}:3000"
+    depends_on:
+      api:
+        condition: service_healthy
+    restart: unless-stopped
+
+  api:
+    build: .
+    environment:
+      ENV: production
+      DEBUG: "false"
+      CORS_ORIGINS: ${CORS_ORIGINS:-}
+      SECRET_KEY: ${SECRET_KEY:?Set SECRET_KEY in .env.production}
+      DATABASE_URL: ${DATABASE_URL:?Set DATABASE_URL in .env.production}
+      REDIS_URL: ${REDIS_URL:?Set REDIS_URL in .env.production}
+      QDRANT_URL: http://qdrant:6333
+      SMS_PROVIDER: twilio
+      TWILIO_ACCOUNT_SID: ${TWILIO_ACCOUNT_SID:-}
+      TWILIO_API_KEY_SID: ${TWILIO_API_KEY_SID:?Set TWILIO_API_KEY_SID in .env.production}
+      TWILIO_API_SECRET: ${TWILIO_API_SECRET:?Set TWILIO_API_SECRET in .env.production}
+      TWILIO_VERIFY_SERVICE_SID: ${TWILIO_VERIFY_SERVICE_SID:?Set TWILIO_VERIFY_SERVICE_SID in .env.production}
+      LLM_PROVIDER: ${LLM_PROVIDER:-groq}
+      LLM_BASE_URL: ${LLM_BASE_URL:-https://api.groq.com/openai/v1}
+      LLM_API_KEY: ${LLM_API_KEY:?Set LLM_API_KEY in .env.production}
+      LLM_MODEL: ${LLM_MODEL:?Set LLM_MODEL in .env.production}
+      STT_PROVIDER: sarvam
+      TTS_PROVIDER: sarvam
+      SARVAM_API_KEY: ${SARVAM_API_KEY:?Set SARVAM_API_KEY in .env.production}
+      SARVAM_STT_MODEL: ${SARVAM_STT_MODEL:-saaras:v4}
+      SARVAM_TTS_MODEL: ${SARVAM_TTS_MODEL:-bulbul:v2}
+      SARVAM_TTS_SPEAKER: ${SARVAM_TTS_SPEAKER:-anushka}
+      EMBEDDING_PROVIDER: bge_m3
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-BAAI/bge-m3}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      qdrant:
+        condition: service_started
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/health', timeout=3)"
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:?Set POSTGRES_DB in .env.production}
+      POSTGRES_USER: ${POSTGRES_USER:?Set POSTGRES_USER in .env.production}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env.production}
+    volumes:
+      - pgdata_prod:/var/lib/postgresql/data
+    healthcheck:
+      test: [CMD-SHELL, 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    command: [redis-server, --appendonly, "yes", --requirepass, "${REDIS_PASSWORD:?Set REDIS_PASSWORD in .env.production}"]
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:?Set REDIS_PASSWORD in .env.production}
+    volumes:
+      - redisdata_prod:/data
+    healthcheck:
+      test: [CMD-SHELL, 'REDISCLI_AUTH="$${REDIS_PASSWORD}" redis-cli ping | grep -q PONG']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  qdrant:
+    image: ${QDRANT_IMAGE:?Set QDRANT_IMAGE to a tested, pinned image in .env.production}
+    volumes:
+      - qdrant_data_prod:/qdrant/storage
+    restart: unless-stopped
+
+volumes:
+  pgdata_prod:
+  redisdata_prod:
+  qdrant_data_prod:

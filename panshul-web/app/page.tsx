@@ -1,0 +1,124 @@
+import Link from "next/link";
+import { MentorActions } from "@/components/MentorActions";
+
+export default function HomePage() {
+  return (
+    <div className="page">
+      <section className="hero-grid">
+        <div>
+          <p className="kicker">Panshul · Education OS</p>
+          <h1>Ask once. The right mentor answers.</h1>
+          <p className="lede">
+            A personal teacher for doubts, a quiz you can score, a career conversation,
+            a mock interview, and a startup mentor. One phone sign-in, with a focused workspace for each.
+          </p>
+          <div className="row">
+            <Link href="/login" className="btn btn-primary">Sign in with your phone</Link>
+            <Link href="/classroom" className="btn">Open the classroom</Link>
+          </div>
+          <div className="stats">
+            <div className="stat"><strong>5</strong><span>mentors on one thread</span></div>
+            <div className="stat"><strong>OTP</strong><span>phone sign-in</span></div>
+            <div className="stat"><strong>Quiz</strong><span>scores saved by topic</span></div>
+            <div className="stat"><strong>Voice</strong><span>speak, then hear the reply</span></div>
+          </div>
+        </div>
+        <div className="route-card">
+          <p className="kicker">How a message moves</p>
+          <p className="route-msg">“Why does a ship float?”</p>
+          <ul className="route-list">
+            <li className="is-chosen"><span>Teacher</span><span>chosen</span></li>
+            <li><span>Quiz</span><span>practice</span></li>
+            <li><span>Career</span><span>what next</span></li>
+            <li><span>Interview</span><span>rehearse</span></li>
+            <li><span>Startup</span><span>test an idea</span></li>
+          </ul>
+        </div>
+      </section>
+
+      <section className="section" id="about">
+        <div className="section-head">
+          <p className="kicker">About Panshul</p>
+          <h2>One place to learn, practice, and plan what comes next.</h2>
+          <p>Education support should meet students where they are. Panshul brings an AI teacher, quiz practice, career guidance, interview preparation, and startup mentorship into one account.</p>
+        </div>
+      </section>
+
+      <section className="section" id="mentors">
+        <div className="section-head">
+          <h2>Five mentors. You do not pick the menu.</h2>
+          <p>
+            Choose a focused workspace. Each one connects to the matching Panshul agent or quiz flow.
+          </p>
+        </div>
+        <MentorActions />
+      </section>
+
+      <section className="section" id="how">
+        <div className="section-head">
+          <h2>From a phone number to a reply.</h2>
+        </div>
+        <div className="steps">
+          <article className="step">
+            <span>01</span>
+            <h3>Sign in</h3>
+            <p>Request a 6-digit code. Verify it. The API returns an access token and a refresh token.</p>
+          </article>
+          <article className="step">
+            <span>02</span>
+            <h3>Ask in the side panel</h3>
+            <p>Sathi posts to the chat API. The orchestrator classifies the intent and calls that mentor.</p>
+          </article>
+          <article className="step">
+            <span>03</span>
+            <h3>Keep the thread</h3>
+            <p>The reply, and the mentor who wrote it, stay on the same session so the next question has context.</p>
+          </article>
+        </div>
+      </section>
+
+      <section className="section split" id="practice">
+        <div>
+          <p className="kicker">Practice</p>
+          <h2>A quiz with a score, not just a chat.</h2>
+          <p className="lede">
+            Pick a topic and a difficulty. Five questions come back from the quiz agent.
+            Submit, and the attempt is stored for the progress page.
+          </p>
+          <div className="row">
+            <Link href="/quiz" className="btn btn-leaf">Start a quiz</Link>
+            <Link href="/progress" className="btn">See progress</Link>
+          </div>
+        </div>
+        <blockquote className="sample">
+          <p className="by">Sample · Teacher</p>
+          <p>
+            Photosynthesis is how a leaf makes food. Sunlight, water, and carbon dioxide go in.
+            Sugar and oxygen come out.
+          </p>
+          <p>Which of those four would you like to follow first?</p>
+        </blockquote>
+      </section>
+
+      <section className="section" id="help">
+        <div className="section-head">
+          <p className="kicker">Help</p>
+          <h2>Getting started is simple.</h2>
+        </div>
+        <div className="steps">
+          <article className="step"><h3>How do I create an account?</h3><p>Use your mobile number and verify the one-time code sent by the backend.</p></article>
+          <article className="step"><h3>Are answers generated by AI?</h3><p>Yes. Chat requests go through Panshul’s API and its existing LangGraph agents.</p></article>
+          <article className="step"><h3>Where are quiz scores kept?</h3><p>Submit a quiz while signed in and your score is saved to your account progress.</p></article>
+        </div>
+      </section>
+
+      <section className="band">
+        <div>
+          <h2>The mentor is already on this page.</h2>
+          <p>Use the panel on the right. On a phone, tap Ask Panshul. The mic sends a voice turn and plays the spoken reply.</p>
+        </div>
+        <Link href="/login" className="btn">Sign in to talk</Link>
+      </section>
+    </div>
+  );
+}
