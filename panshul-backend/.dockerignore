@@ -6,6 +6,8 @@
 .venv/
 venv/
 models/
+!app/db/models/
+!app/db/models/**
 *.db
 .git/
 .env*
